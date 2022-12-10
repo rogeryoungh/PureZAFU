@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">PureZAFU DEV</string>
+    <string name="setting">Setting</string>
+    <string name="uiswitch">Switch</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="autologin">Auto Login</string>
+    <string name="account">account</string>
+</resources>

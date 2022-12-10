@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PureZAFU 开发版</string>
+    <string name="setting">设置</string>
+    <string name="uiswitch">切换</string>
+    <string name="username">用户名</string>
+    <string name="password">密码</string>
+    <string name="login">登录</string>
+    <string name="autologin">自动登录</string>
+    <string name="account">帐户</string>
+</resources>
