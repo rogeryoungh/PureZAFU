@@ -1,8 +1,6 @@
 package pers.roger.purezafu.util;
 
 import android.Manifest;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
@@ -13,7 +11,7 @@ import com.google.android.material.snackbar.Snackbar;
 import pers.roger.purezafu.activity.WebActivity;
 
 public class LocationHelper {
-    private WebActivity webActivity;
+    private final WebActivity webActivity;
 
     public LocationHelper(WebActivity webActivity) {
         this.webActivity = webActivity;
@@ -30,7 +28,7 @@ public class LocationHelper {
 
     @JavascriptInterface
     public void gdGetLocation() {
-        String manifests[] = {
+        String[] manifests = {
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION
         };
@@ -39,20 +37,25 @@ public class LocationHelper {
             webActivity.requestPermissions(manifests, 100);
         }
 
-        if (webActivity.nowUrl.endsWith("/h5app/checkinclass.htm")) {
-            webActivity.runOnUiThread(() -> eval("$('.lat').text()", lat -> eval("$('.lng').text()", lng -> {
-                Snackbar
-                    .make(webActivity.constraintLayout, "上课啦签到：北纬" + lat + "东经：" + lng, 5000)
-                    .setAction("继续", v -> {
-                        String callback = "(s, r) => zafu.sendLocation(r.locations[0].lat, r.locations[0].lng)";
-                        String call = "AMap.convertFrom([" + lng + ", " + lat + "], 'gps', " + callback + ")";
-                        Log.i("zafu", call);
-                        eval(call);
-                    }).show();
-            })));
-        } else {
-            Snackbar.make(webActivity.constraintLayout, "未知定位使用", 5000).show();
-        }
+        webActivity.runOnUiThread(() -> eval("window.location.href", nowUrl -> {
+            if (nowUrl.contains("h5app/checkinclass.htm")) {
+                check();
+            } else {
+                Snackbar.make(webActivity.constraintLayout, "未知定位使用", 5000).show();
+            }
+        }));
+
+    }
+
+    private void check() {
+        eval("$('.lat').text()", lat -> eval("$('.lng').text()", lng -> Snackbar
+                .make(webActivity.constraintLayout, "上课啦签到：北纬" + lat + "东经：" + lng, 5000)
+                .setAction("继续", v -> {
+                    String callback = "(s, r) => zafu.sendLocation(r.locations[0].lat, r.locations[0].lng)";
+                    String call = "AMap.convertFrom([" + lng + ", " + lat + "], 'gps', " + callback + ")";
+                    Log.i("zafu", call);
+                    eval(call);
+                }).show()));
     }
 
     @JavascriptInterface

@@ -23,7 +23,7 @@ public class MainPresenter implements IMainPresenter {
         this.mainView = mainView;
         appDataModel = new AppDataModel();
 
-        handler = new Handler(Looper.getMainLooper()){
+        handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void dispatchMessage(@NonNull Message msg) {
                 super.dispatchMessage(msg);
@@ -36,10 +36,11 @@ public class MainPresenter implements IMainPresenter {
     }
 
     private void appdata_back() {
-        Log.i("APPDATA","GET APPDATA SUCCESS!");
+        Log.i("APPDATA", "GET APPDATA SUCCESS!");
         SharedPreferences.Editor editor = mainView.getAppInfoEditor();
         Gson gson = new Gson();
         String json = gson.toJson(appDataModel.getBean());
+        Log.i("APPDATA", json);
         editor.putString("app_data", json);
         editor.putBoolean("hasload", true);
         editor.apply();
@@ -54,6 +55,6 @@ public class MainPresenter implements IMainPresenter {
             public void postback() {
                 handler.sendEmptyMessage(POST_APPDATA);
             }
-        }, PostModel.POSTMODE_APP_HTTPS,token);
+        }, PostModel.POSTMODE_APP_HTTPS, token);
     }
 }

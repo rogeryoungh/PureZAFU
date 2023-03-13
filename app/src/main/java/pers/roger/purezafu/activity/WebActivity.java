@@ -1,11 +1,12 @@
 package pers.roger.purezafu.activity;
 
 import android.content.Intent;
-import android.net.http.SslError;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.webkit.GeolocationPermissions;
-import android.webkit.SslErrorHandler;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -14,16 +15,18 @@ import android.webkit.WebViewClient;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.lang.reflect.Method;
 
 import pers.roger.purezafu.R;
 import pers.roger.purezafu.util.LocationHelper;
+import pers.roger.purezafu.util.LoginHelper;
 
 public class WebActivity extends AppCompatActivity {
 
     public WebView webView;
     public ConstraintLayout constraintLayout;
-    public String nowUrl = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,9 @@ public class WebActivity extends AppCompatActivity {
         webView.setFocusable(true); // 自选，非必要
         webView.setDrawingCacheEnabled(true); // 自选，非必要
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY); // 自选，非必要
+
+        webView.addJavascriptInterface(new LocationHelper(this), "zafu");
+
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
@@ -62,30 +68,32 @@ public class WebActivity extends AppCompatActivity {
             }
         });
 
-        webView.addJavascriptInterface(new LocationHelper(this), "zafu");
-
-
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                //使用WebView加载显示url
                 view.loadUrl(url);
-                //返回true
                 return true;
             }
+        });
+        webView.loadUrl(intent.getStringExtra("url"));
 
-            @Override
-            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-                switch (error.getPrimaryError()) {
-                    case SslError.SSL_INVALID: // 校验过程遇到了bug
-                    case SslError.SSL_UNTRUSTED: // 证书有问题
-                        handler.proceed();
-                    default:
-                        handler.cancel();
-                }
+        new Handler().postDelayed(this::loadHelper, 1000);
+    }
+
+    public void eval(String js, ValueCallback<String> callback) {
+        webView.evaluateJavascript("javascript:" + js, callback);
+    }
+
+    void loadHelper() {
+        eval("window.location.href", nowUrl -> {
+            Log.i("URL", nowUrl);
+            if (nowUrl.contains("uis.zafu.edu.cn/cas/login")) {
+                new LoginHelper(this).autoFill();
+            } else if (nowUrl.contains("h5app/checkinclass.htm")) {
+                Snackbar.make(constraintLayout, "已激活:强制签到", 5000).show();
+            } else {
+                Snackbar.make(constraintLayout, "null", 5000).show();
             }
         });
-        nowUrl = intent.getStringExtra("url");
-        webView.loadUrl(nowUrl);
     }
 }
