@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         if (hasload) {
             String json = appInfo.getString("app_data", "");
             Log.i("appdata", json);
-            if (!json.isEmpty()) {
+            if (!json.isEmpty() && !json.equals("null")) {
                 Gson gson = new Gson();
                 appDataBean = gson.fromJson(json, AppDataBean.class);
                 appsAdapter.setAppData(appDataBean);

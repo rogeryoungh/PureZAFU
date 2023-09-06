@@ -63,8 +63,8 @@ public abstract class PostModel {
             String responseData = response.body().string();
             Log.i("POST", responseData);
             try {
-                response(responseData);
                 setSuccess(true);
+                response(responseData);
             } catch (JsonSyntaxException e) {
                 setSuccess(false);
                 failure();

@@ -25,7 +25,7 @@ public class UpgradeModel extends PostModel {
     public void checkUpdate(Postback postback, int mode) {
         String url = getURL(posturl, mode);
         RequestBody formBody = new FormBody.Builder()
-                .add("1", "1")
+                .add("channel", "android")
                 .add("appVersion", Utils.version_string)
                 .build();
         Request request = new Request.Builder()
@@ -36,6 +36,7 @@ public class UpgradeModel extends PostModel {
         client.newCall(request).enqueue(new PostCallback() {
             @Override
             public void response(String responseData) throws JsonSyntaxException {
+                setSuccess(true);
                 Gson gson = new Gson();
                 bean = gson.fromJson(responseData, UpgradeBean.class);
                 postback.postback();
